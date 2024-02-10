@@ -21,7 +21,7 @@ def getElevation(line):
         elevations = backend._get_elevation_from_path(
             latitudes = lats,
             longitudes= lons,
-            path="/home/ubuntu/mooviz-backend/tools/elevationTiles/"
+            path="./data/"
         )
 
     except Exception as e:
