@@ -1,6 +1,9 @@
 gevent
 flask
 flask-cors
+pyproj
+h3
+numpy
 polyline
 aioapns
 rasterio
