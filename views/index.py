@@ -14,7 +14,7 @@ class indexView():
         self.application = app
         app.add_url_rule('/', 'getelevation', self.getelevation, methods=['POST'])
 
-    def index(self):
+    def getelevation(self):
         try:
             data = request.json
         except:
