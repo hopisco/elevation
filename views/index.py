@@ -3,7 +3,7 @@ import os
 sys.path.append('{}/..'.format(os.path.dirname(__file__)))
 
 # We need to monkey_patch everything
-from flask import request, Response, send_file, redirect, abort
+from flask import request, abort
 
 import json
 

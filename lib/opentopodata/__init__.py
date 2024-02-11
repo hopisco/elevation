@@ -1,5 +1,4 @@
 import lib.opentopodata.backend as backend
-import lib.opentopodata.Dataset as Dataset
 
 import polyline
 import h3 
@@ -11,6 +10,11 @@ def getElevation(line):
     lats = []
 
     for point in arr:
+        if len(lats) > 0:
+            d = h3.point_dist((lats[-1],lons[-1]), (point[0], point[1]))
+            if d < 0.1:
+                continue
+
         lats.append(point[0])
         lons.append(point[1])
 
@@ -29,7 +33,7 @@ def getElevation(line):
         return {
             'uphill': 0,
             'downhill': 0,
-            'points': []
+            'points': ''
         }
 
     points = []
@@ -38,9 +42,9 @@ def getElevation(line):
     uphill = 0
     downhill = 0
 
-    for i in range(len(arr)):
+    for i in range(elevations):
         if i > 0:
-            distance += h3.point_dist((arr[i-1][0], arr[i-1][1]), (arr[i][0], arr[i][1]))
+            distance += h3.point_dist((lats[i-1][0], lons[i-1][1]), (lats[i][0], lon[i][1]))
 
             if i < (len(arr)-1) and elevations[i] == elevations[i-1]:
                 continue
@@ -50,15 +54,17 @@ def getElevation(line):
             else:
                 downhill += elevations[i] - elevations[i-1]
 
-        points.append({
-            'lat': arr[i][0],
-            'lon': arr[i][1],
-            'elevation': elevations[i],
-            'distance': distance
-        })
+        points.append((distance, elevations[i]))
+
+        #points.append({
+        #    'lat': arr[i][0],
+        #    'lon': arr[i][1],
+        #    'elevation': elevations[i],
+        #    'distance': distance
+        #})
 
     return {
         'uphill': uphill,
         'downhill': downhill,
-        'points': points
+        'points': polyline.encode(points)
     }
