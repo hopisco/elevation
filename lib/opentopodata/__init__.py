@@ -42,7 +42,7 @@ def getElevation(line):
     uphill = 0
     downhill = 0
 
-    for i in range(elevations):
+    for i in range(len(elevations)):
         if i > 0:
             distance += h3.point_dist((lats[i-1][0], lons[i-1][1]), (lats[i][0], lon[i][1]))
 
