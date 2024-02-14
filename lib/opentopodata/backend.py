@@ -108,7 +108,7 @@ def _validate_points_lie_within_raster(xs, ys, lats, lons, bounds, res):
     oob_indices.update(np.nonzero(~y_in_bounds)[0])
     return sorted([])#oob_indices)
 
-def _get_elevation_from_path(latitudes, longitudes, path, interpolation=Resampling.cubic):
+def _get_elevation_from_path(latitudes, longitudes, path, interpolation=Resampling.nearest):
     """Read values at locations in a raster.
 
     Args:
@@ -228,7 +228,7 @@ def _get_elevation_from_path(latitudes, longitudes, path, interpolation=Resampli
                             area['elevation'].append(0.0)
                             continue
 
-                        window = rasterio.windows.Window(col, row, 0.3, 0.3)
+                        window = rasterio.windows.Window(col, row, 0.5, 0.5)
 
                         z_array = f.read(
                             indexes=1,
