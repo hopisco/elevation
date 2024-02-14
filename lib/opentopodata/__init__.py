@@ -43,9 +43,14 @@ def getElevation(line):
     downhill = 0
 
     if backend.SELECT_METHOD == 'NEW':
-        points = elevations
-        uphill = 0
-        downhill = 0
+        for i in range(len(elevations)):
+            if i > 0:
+                if elevations[i] > elevations[i-1]:
+                    uphill += elevations[i] - elevations[i-1]
+                else:
+                    downhill += elevations[i] - elevations[i-1]
+
+            points.append((elevations[i]['dist'], elevations[i]['elevation']))
 
     else:
         for i in range(len(elevations)):
