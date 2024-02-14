@@ -42,26 +42,32 @@ def getElevation(line):
     uphill = 0
     downhill = 0
 
-    for i in range(len(elevations)):
-        if i > 0:
-            distance += h3.point_dist((lats[i-1], lons[i-1]), (lats[i], lons[i]))
+    if backend.SELECT_METHOD == 'NEW':
+        points = elevations
+        uphill = 0
+        downhill = 0
 
-            if i < (len(arr)-1) and elevations[i] == elevations[i-1]:
-                continue
+    else:
+        for i in range(len(elevations)):
+            if i > 0:
+                distance += h3.point_dist((lats[i-1], lons[i-1]), (lats[i], lons[i]))
 
-            if elevations[i] > elevations[i-1]:
-                uphill += elevations[i] - elevations[i-1]
-            else:
-                downhill += elevations[i] - elevations[i-1]
+                if i < (len(arr)-1) and elevations[i] == elevations[i-1]:
+                    continue
 
-        points.append((distance, elevations[i]))
+                if elevations[i] > elevations[i-1]:
+                    uphill += elevations[i] - elevations[i-1]
+                else:
+                    downhill += elevations[i] - elevations[i-1]
 
-        #points.append({
-        #    'lat': arr[i][0],
-        #    'lon': arr[i][1],
-        #    'elevation': elevations[i],
-        #    'distance': distance
-        #})
+            points.append((distance, elevations[i]))
+
+            #points.append({
+            #    'lat': arr[i][0],
+            #    'lon': arr[i][1],
+            #    'elevation': elevations[i],
+            #    'distance': distance
+            #})
 
     return {
         'uphill': uphill,

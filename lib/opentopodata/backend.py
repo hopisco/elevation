@@ -253,9 +253,12 @@ def _get_elevation_from_path(latitudes, longitudes, path, interpolation=Resampli
             except Exception as e:
                 print(e)
 
-        print(areas)
+        points = []
+        for area in areas:
+            for i in range(len(area['dist'])):
+                points.append((area['dist'][i], area['elevation'][i]))
 
-        return []
+        return points
 
     else:
         for i, (lon, lat) in enumerate(zip(longitudes, latitudes)):
