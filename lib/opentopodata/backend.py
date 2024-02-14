@@ -158,8 +158,6 @@ def _get_elevation_from_path(latitudes, longitudes, path, interpolation=Resampli
                 'dist': [h3.point_dist((latitudes[0],longitudes[0]), (lat, lon))],
                 'elevation': []
             })
-
-        print(areas)
     
         for area in areas:
             lons = area.lons
@@ -168,6 +166,8 @@ def _get_elevation_from_path(latitudes, longitudes, path, interpolation=Resampli
             latFilename = 'N{:02}'.format(area['minlat']) if lats[0] > 0 else 'S{:02}'.format(abs(area['minlat']))
             lonFilename = 'E{:02}'.format(area['minlon']) if lons[0] > 0 else 'W{:02}'.format(abs(area['minlon']))
             filename = "ASTGTMV003_{}{}_dem.tif".format(latFilename, lonFilename)
+
+            print(filename)
 
             try:
                 with rasterio.open('{}{}'.format(path, filename)) as f:
@@ -247,7 +247,7 @@ def _get_elevation_from_path(latitudes, longitudes, path, interpolation=Resampli
 
                 area['elevation'].append(0.0)
 
-        print(area)
+        print(areas)
 
         return []
 
