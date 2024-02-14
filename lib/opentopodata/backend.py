@@ -159,7 +159,10 @@ def _get_elevation_from_path(latitudes, longitudes, path, interpolation=Resampli
                 'elevation': []
             })
     
+        print(areas)
+
         for area in areas:
+            print("SELECT AREA")
             lons = area.lons
             lats = area.lats
 
