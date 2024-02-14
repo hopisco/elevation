@@ -134,13 +134,19 @@ def _get_elevation_from_path(latitudes, longitudes, path, interpolation=Resampli
             lon = longitudes[i]
             lat = latitudes[i]
 
+            areaFound = False
+
             for area in areas:
                 if lon > area['minlon'] and lon < area['maxlon'] and lat > area['minlat'] and lat < area['maxlat']:
                     area['lons'].append(lon)
                     area['lats'].append(lat)
                     area['dist'].append(h3.point_dist((latitudes[0],longitudes[0]), (lat, lon)))
 
-                    continue
+                    areaFound = True
+                    break
+
+            if areaFound:
+                continue
 
             areas.append({
                 'maxlon': math.trunc(lon)+1 if lon > 0 else math.trunc(lon) ,
@@ -154,8 +160,6 @@ def _get_elevation_from_path(latitudes, longitudes, path, interpolation=Resampli
             })
 
         print(areas)
-
-        return []
     
         for area in areas:
             lons = area.lons
