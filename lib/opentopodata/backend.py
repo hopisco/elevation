@@ -228,7 +228,7 @@ def _get_elevation_from_path(latitudes, longitudes, path, interpolation=Resampli
                             area['elevation'].append(0.0)
                             continue
 
-                        window = rasterio.windows.Window(col, row, 0.5, 0.5)
+                        window = rasterio.windows.Window(col, row, 0.3, 0.3)
 
                         z_array = f.read(
                             indexes=1,
