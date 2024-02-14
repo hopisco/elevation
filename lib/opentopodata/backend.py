@@ -123,8 +123,11 @@ def _get_elevation_from_path(latitudes, longitudes, path, interpolation=Resampli
 
     #print(interpolation)
     #print('{} / {}'.format(latitudes, longitudes))
-    if SELECT_METHOD = 'NEW':
+    if SELECT_METHOD == 'NEW':
         areas = []
+
+        print(longitudes)
+        print(latitudes)
 
         for i, (lon, lat) in enumerate(zip(longitudes, latitudes)):
             for area in areas:
@@ -146,6 +149,8 @@ def _get_elevation_from_path(latitudes, longitudes, path, interpolation=Resampli
                 'elevation': []
             })
 
+        print(areas)
+
         for area in areas:
             lons = area.lons
             lats = area.lats
@@ -160,6 +165,7 @@ def _get_elevation_from_path(latitudes, longitudes, path, interpolation=Resampli
                         msg = "Dataset has no coordinate reference system."
                         msg += f" Check the file '{path}' is a geo raster."
                         msg += " Otherwise you'll have to add the crs manually with a tool like gdaltranslate."
+                        print(msg)
                         raise ValueError(msg)
 
                     try:
@@ -168,6 +174,7 @@ def _get_elevation_from_path(latitudes, longitudes, path, interpolation=Resampli
                         else:
                             xs, ys = reproject_latlons(lats, lons, wkt=f.crs.to_wkt())
                     except ValueError:
+                        print("Unable to transform latlons to dataset projection.")
                         raise ValueError("Unable to transform latlons to dataset projection.")
 
                     # Check bounds.
@@ -199,6 +206,7 @@ def _get_elevation_from_path(latitudes, longitudes, path, interpolation=Resampli
                     # values are NODATA.
                     for i, (row, col) in enumerate(zip(rows, cols)):
                         if i in oob_indices:
+                            print("Out Of bounds")
                             area['elevation'].append(0.0)
                             continue
 
@@ -225,6 +233,8 @@ def _get_elevation_from_path(latitudes, longitudes, path, interpolation=Resampli
                 #    msg += " and that the file is not corrupt."
                 #    raise ValueError(msg)
                 #raise e
+                print(e)
+                
                 area['elevation'].append(0.0)
 
         print(area)
