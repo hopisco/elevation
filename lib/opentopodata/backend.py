@@ -142,6 +142,8 @@ def _get_elevation_from_path(latitudes, longitudes, path, interpolation=Resampli
             else:
                 d = None
 
+            print(d)
+
             if d is not None and d > 0.06:
                 areaFound = False
 
@@ -167,6 +169,8 @@ def _get_elevation_from_path(latitudes, longitudes, path, interpolation=Resampli
                     'dist': [dist],
                     'elevation': []
                 })
+
+        print(areas)
     
         for area in areas:
             lons = area['lons']
