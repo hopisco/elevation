@@ -1,5 +1,5 @@
 import math
-from pymbtiles import MBTiles
+from pymbtiles import MBtiles
 
 def generateMbTiles(minlat, maxlat, minlon, maxlon, srcfile='./data/planet.mbtiles', outfile='./data/tmp.mbtiles'):
 
