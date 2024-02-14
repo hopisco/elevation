@@ -5,6 +5,9 @@ import numpy as np
 
 from rasterio.enums import Resampling
 import rasterio
+import h3
+
+SELECT_METHOD = 'NEW'
 
 INTERPOLATION_METHODS = {
     "nearest": Resampling.nearest,
@@ -120,100 +123,208 @@ def _get_elevation_from_path(latitudes, longitudes, path, interpolation=Resampli
 
     #print(interpolation)
     #print('{} / {}'.format(latitudes, longitudes))
-    
-    for i, (lon, lat) in enumerate(zip(longitudes, latitudes)):
+    if SELECT_METHOD = 'NEW':
+        areas = []
 
-        lons = [lon]
-        lats = [lat]
+        for i, (lon, lat) in enumerate(zip(longitudes, latitudes)):
+            for area in areas:
+                if lon > area['minlon'] and lon < area['maxlon'] and lat > area['minlat'] and lat < area['maxlat']:
+                    area['lons'].append(lon)
+                    area['lats'].append(lat)
+                    area['dist'].append(h3.point_dist((latitudes[0],longitudes[0]), (lat, lon)))
 
-        #print('{} / {}'.format(lats, lons))
-        
-        latFilename = 'N{:02}'.format(int(round(lats[0], 0))) if lats[0] > 0 else 'N{:02}'.format(abs(int(round(lats[0], 0))))
-        lonFilename = 'E{:03}'.format(int(round(lons[0]-1, 0))) if lons[0] > 0 else 'W{:03}'.format(abs(int(round(lons[0]-1, 0))))
-        filename = "ASTGTMV003_{}{}_dem.tif".format(latFilename, lonFilename)
+                    continue
 
-        #print("Open file ASTGTMV003_{}{}_dem.tif".format(latFilename, lonFilename))
+            areas.append({
+                'maxlon': math.trunc(lon)+1,
+                'minlon': math.trunc(lon),
+                'maxlat': math.trunc(lat)+1,
+                'minlat': math.trunc(lat),
+                'lats': [lat],
+                'lons': [lon],
+                'dist': [h3.point_dist((latitudes[0],longitudes[0]), (lat, lon))],
+                'elevation': []
+            })
 
-        #interpolation = INTERPOLATION_METHODS.get(interpolation)
-        #print("INTERPOLATION")
-        #print(interpolation)
+        for area in areas:
+            lons = area.lons
+            lats = area.lats
 
-        try:
-            with rasterio.open('{}{}'.format(path, filename)) as f:
-                if f.crs is None:
-                    msg = "Dataset has no coordinate reference system."
-                    msg += f" Check the file '{path}' is a geo raster."
-                    msg += " Otherwise you'll have to add the crs manually with a tool like gdaltranslate."
-                    raise ValueError(msg)
+            latFilename = 'N{:02}'.format(area['minlat']) if lats[0] > 0 else 'S{:02}'.format(abs(area['minlat']))
+            lonFilename = 'E{:02}'.format(area['minlon']) if lons[0] > 0 else 'W{:02}'.format(abs(area['minlon']))
+            filename = "ASTGTMV003_{}{}_dem.tif".format(latFilename, lonFilename)
 
-                try:
-                    if f.crs.is_epsg_code:
-                        xs, ys = reproject_latlons(lats, lons, epsg=f.crs.to_epsg())
-                    else:
-                        xs, ys = reproject_latlons(lats, lons, wkt=f.crs.to_wkt())
-                except ValueError:
-                    raise ValueError("Unable to transform latlons to dataset projection.")
+            try:
+                with rasterio.open('{}{}'.format(path, filename)) as f:
+                    if f.crs is None:
+                        msg = "Dataset has no coordinate reference system."
+                        msg += f" Check the file '{path}' is a geo raster."
+                        msg += " Otherwise you'll have to add the crs manually with a tool like gdaltranslate."
+                        raise ValueError(msg)
 
-                # Check bounds.
-                oob_indices = _validate_points_lie_within_raster(
-                    xs, ys, lats, lons, f.bounds, f.res
-                )
-                rows, cols = tuple(f.index(xs, ys, op=_noop))
+                    try:
+                        if f.crs.is_epsg_code:
+                            xs, ys = reproject_latlons(lats, lons, epsg=f.crs.to_epsg())
+                        else:
+                            xs, ys = reproject_latlons(lats, lons, wkt=f.crs.to_wkt())
+                    except ValueError:
+                        raise ValueError("Unable to transform latlons to dataset projection.")
 
-                # Different versions of rasterio may or may not collapse single
-                # f.index() lookups into scalars. We want to always have an
-                # array.
-                rows = np.atleast_1d(rows)
-                cols = np.atleast_1d(cols)
-
-                # Offset by 0.5 to convert from center coords (provided by
-                # f.index) to ul coords (expected by f.read).
-                rows = rows - 0.5
-                cols = cols - 0.5
-
-                # Because of floating point precision, indices may slightly exceed
-                # array bounds. Because we've checked the locations are within the
-                # file bounds,  it's safe to clip to the array shape.
-                rows = rows.clip(0, f.height - 1)
-                cols = cols.clip(0, f.width - 1)
-
-                # Read the locations, using a 1x1 window. The `masked` kwarg makes
-                # rasterio replace NODATA values with np.nan. The `boundless` kwarg
-                # forces the windowed elevation to be a 1x1 array, even when it all
-                # values are NODATA.
-                for i, (row, col) in enumerate(zip(rows, cols)):
-                    if i in oob_indices:
-                        z_all.append(0.0)
-                        continue
-
-                    #print("HERE WE ARE")
-                    #print(i, row, col)
-
-                    window = rasterio.windows.Window(col, row, 1, 1)
-                    #print(window)
-                    #print(interpolation)
-
-                    z_array = f.read(
-                        indexes=1,
-                        window=window,
-                        resampling=interpolation,
-                        out_dtype=float,
-                        boundless=True,
-                        masked=True,
+                    # Check bounds.
+                    oob_indices = _validate_points_lie_within_raster(
+                        xs, ys, lats, lons, f.bounds, f.res
                     )
-                    z = np.ma.filled(z_array, np.nan)[0][0]
-                    z_all.append(z)
+                    rows, cols = tuple(f.index(xs, ys, op=_noop))
 
-        # Depending on the file format, when rasterio finds an invalid projection
-        # of file, it might load it with a None crs, or it might throw an error.
-        except rasterio.RasterioIOError as e:
-            #print(e)
-            #if "not recognized as a supported file format" in str(e):
-            #    msg = f"Dataset file '{path}' not recognised as a geo raster."
-            #    msg += " Check that the file has projection information with gdalsrsinfo,"
-            #    msg += " and that the file is not corrupt."
-            #    raise ValueError(msg)
-            #raise e
-            z_all.append(0.0)
+                    # Different versions of rasterio may or may not collapse single
+                    # f.index() lookups into scalars. We want to always have an
+                    # array.
+                    rows = np.atleast_1d(rows)
+                    cols = np.atleast_1d(cols)
 
-    return z_all
+                    # Offset by 0.5 to convert from center coords (provided by
+                    # f.index) to ul coords (expected by f.read).
+                    rows = rows - 0.5
+                    cols = cols - 0.5
+
+                    # Because of floating point precision, indices may slightly exceed
+                    # array bounds. Because we've checked the locations are within the
+                    # file bounds,  it's safe to clip to the array shape.
+                    rows = rows.clip(0, f.height - 1)
+                    cols = cols.clip(0, f.width - 1)
+
+                    # Read the locations, using a 1x1 window. The `masked` kwarg makes
+                    # rasterio replace NODATA values with np.nan. The `boundless` kwarg
+                    # forces the windowed elevation to be a 1x1 array, even when it all
+                    # values are NODATA.
+                    for i, (row, col) in enumerate(zip(rows, cols)):
+                        if i in oob_indices:
+                            area['elevation'].append(0.0)
+                            continue
+
+                        window = rasterio.windows.Window(col, row, 1, 1)
+
+                        z_array = f.read(
+                            indexes=1,
+                            window=window,
+                            resampling=interpolation,
+                            out_dtype=float,
+                            boundless=True,
+                            masked=True,
+                        )
+                        z = np.ma.filled(z_array, np.nan)[0][0]
+                        area['elevation'].append(z)
+
+            # Depending on the file format, when rasterio finds an invalid projection
+            # of file, it might load it with a None crs, or it might throw an error.
+            except rasterio.RasterioIOError as e:
+                #print(e)
+                #if "not recognized as a supported file format" in str(e):
+                #    msg = f"Dataset file '{path}' not recognised as a geo raster."
+                #    msg += " Check that the file has projection information with gdalsrsinfo,"
+                #    msg += " and that the file is not corrupt."
+                #    raise ValueError(msg)
+                #raise e
+                area['elevation'].append(0.0)
+
+        print(area)
+
+        return []
+
+    else:
+        for i, (lon, lat) in enumerate(zip(longitudes, latitudes)):
+
+            lons = [lon]
+            lats = [lat]
+
+            #print('{} / {}'.format(lats, lons))
+            
+            latFilename = 'N{:02}'.format(int(round(lats[0], 0))) if lats[0] > 0 else 'N{:02}'.format(abs(int(round(lats[0], 0))))
+            lonFilename = 'E{:03}'.format(int(round(lons[0]-1, 0))) if lons[0] > 0 else 'W{:03}'.format(abs(int(round(lons[0]-1, 0))))
+            filename = "ASTGTMV003_{}{}_dem.tif".format(latFilename, lonFilename)
+
+            #print("Open file ASTGTMV003_{}{}_dem.tif".format(latFilename, lonFilename))
+
+            #interpolation = INTERPOLATION_METHODS.get(interpolation)
+            #print("INTERPOLATION")
+            #print(interpolation)
+
+            try:
+                with rasterio.open('{}{}'.format(path, filename)) as f:
+                    if f.crs is None:
+                        msg = "Dataset has no coordinate reference system."
+                        msg += f" Check the file '{path}' is a geo raster."
+                        msg += " Otherwise you'll have to add the crs manually with a tool like gdaltranslate."
+                        raise ValueError(msg)
+
+                    try:
+                        if f.crs.is_epsg_code:
+                            xs, ys = reproject_latlons(lats, lons, epsg=f.crs.to_epsg())
+                        else:
+                            xs, ys = reproject_latlons(lats, lons, wkt=f.crs.to_wkt())
+                    except ValueError:
+                        raise ValueError("Unable to transform latlons to dataset projection.")
+
+                    # Check bounds.
+                    oob_indices = _validate_points_lie_within_raster(
+                        xs, ys, lats, lons, f.bounds, f.res
+                    )
+                    rows, cols = tuple(f.index(xs, ys, op=_noop))
+
+                    # Different versions of rasterio may or may not collapse single
+                    # f.index() lookups into scalars. We want to always have an
+                    # array.
+                    rows = np.atleast_1d(rows)
+                    cols = np.atleast_1d(cols)
+
+                    # Offset by 0.5 to convert from center coords (provided by
+                    # f.index) to ul coords (expected by f.read).
+                    rows = rows - 0.5
+                    cols = cols - 0.5
+
+                    # Because of floating point precision, indices may slightly exceed
+                    # array bounds. Because we've checked the locations are within the
+                    # file bounds,  it's safe to clip to the array shape.
+                    rows = rows.clip(0, f.height - 1)
+                    cols = cols.clip(0, f.width - 1)
+
+                    # Read the locations, using a 1x1 window. The `masked` kwarg makes
+                    # rasterio replace NODATA values with np.nan. The `boundless` kwarg
+                    # forces the windowed elevation to be a 1x1 array, even when it all
+                    # values are NODATA.
+                    for i, (row, col) in enumerate(zip(rows, cols)):
+                        if i in oob_indices:
+                            z_all.append(0.0)
+                            continue
+
+                        #print("HERE WE ARE")
+                        #print(i, row, col)
+
+                        window = rasterio.windows.Window(col, row, 1, 1)
+                        #print(window)
+                        #print(interpolation)
+
+                        z_array = f.read(
+                            indexes=1,
+                            window=window,
+                            resampling=interpolation,
+                            out_dtype=float,
+                            boundless=True,
+                            masked=True,
+                        )
+                        z = np.ma.filled(z_array, np.nan)[0][0]
+                        z_all.append(z)
+
+            # Depending on the file format, when rasterio finds an invalid projection
+            # of file, it might load it with a None crs, or it might throw an error.
+            except rasterio.RasterioIOError as e:
+                #print(e)
+                #if "not recognized as a supported file format" in str(e):
+                #    msg = f"Dataset file '{path}' not recognised as a geo raster."
+                #    msg += " Check that the file has projection information with gdalsrsinfo,"
+                #    msg += " and that the file is not corrupt."
+                #    raise ValueError(msg)
+                #raise e
+                z_all.append(0.0)
+
+        return z_all
