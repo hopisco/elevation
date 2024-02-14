@@ -1,4 +1,6 @@
 import lib.opentopodata  as opentopodata
+import lib.Tiler as Tiler
+
 import polyline
 
 #opentopodata.SELECT_METHOD = 'OLD'
@@ -6,3 +8,12 @@ r = opentopodata.getElevation('e{pbFdxahVBJPl@^r@FJKDSBUGeAo@QIUKSAQ@SNSXQ`@Id@A
 print(r)
 
 print(polyline.decode(r['points']))
+
+Tiler.generateMbTiles(
+    minlat=37,
+    maxlat=38,
+    minlon=-122,
+    maxlon=-121,
+    srcfile='/home/ubuntu/maptiler/data/planet.mbtiles',
+    outfile='/home/ubuntu/tmp.mbtiles'
+)
