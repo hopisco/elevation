@@ -3,7 +3,7 @@ from pymbtiles import MBtiles, Tile
 
 def generateMbTiles(minlat, maxlat, minlon, maxlon, srcfile='./data/planet.mbtiles', outfile='./data/tmp.mbtiles'):
 
-    tiles = ()
+    tiles = []
 
     #Compute region for each zoom
     minlatRad = minlat * math.pi/180.0
