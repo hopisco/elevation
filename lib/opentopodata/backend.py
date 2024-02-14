@@ -139,10 +139,10 @@ def _get_elevation_from_path(latitudes, longitudes, path, interpolation=Resampli
                     continue
 
             areas.append({
-                'maxlon': math.trunc(lon)+1,
-                'minlon': math.trunc(lon),
-                'maxlat': math.trunc(lat)+1,
-                'minlat': math.trunc(lat),
+                'maxlon': math.trunc(lon)+1 if lon > 0 else math.trunc(lon) ,
+                'minlon': math.trunc(lon) if lon > 0 else math.trunc(lon)-1,
+                'maxlat': math.trunc(lat)+1 if lat > 0 else math.trunc(lat),
+                'minlat': math.trunc(lat) if lat > 0 else math.trunc(lat)-1,
                 'lats': [lat],
                 'lons': [lon],
                 'dist': [h3.point_dist((latitudes[0],longitudes[0]), (lat, lon))],
@@ -234,7 +234,7 @@ def _get_elevation_from_path(latitudes, longitudes, path, interpolation=Resampli
                 #    raise ValueError(msg)
                 #raise e
                 print(e)
-                
+
                 area['elevation'].append(0.0)
 
         print(area)
