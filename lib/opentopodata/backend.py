@@ -129,7 +129,11 @@ def _get_elevation_from_path(latitudes, longitudes, path, interpolation=Resampli
         print(longitudes)
         print(latitudes)
 
-        for i, (lon, lat) in enumerate(zip(longitudes, latitudes)):
+        for i in range(len(latitudes)):
+            #for i, (lon, lat) in enumerate(zip(longitudes, latitudes)):
+            lon = longitudes[i]
+            lat = latitudes[i]
+
             for area in areas:
                 if lon > area['minlon'] and lon < area['maxlon'] and lat > area['minlat'] and lat < area['maxlat']:
                     area['lons'].append(lon)
