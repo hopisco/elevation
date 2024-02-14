@@ -142,7 +142,7 @@ def _get_elevation_from_path(latitudes, longitudes, path, interpolation=Resampli
             else:
                 d = None
 
-            if d is not None and d > 0.06:
+            if d is None or d > 0.06:
                 areaFound = False
                 prevlat = lat
                 prevlon = lon
