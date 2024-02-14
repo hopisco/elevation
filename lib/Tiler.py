@@ -19,7 +19,15 @@ def generateMbTiles(minlat, maxlat, minlon, maxlon, srcfile='./data/planet.mbtil
 
             for x in range(minX-1, maxX+1):
                 for y in range(minY-1, maxY+1):
-                    tiles.append(Tile(z=zoom, x=x, y=y, data=src.read_tile(z=zoom, x=x, y=y)))
+                    tiles.append({
+                        'data': src.read_tile(z=zoom, x=x, y=y),
+                        'zoom': zoom,
+                        'x': x,
+                        'y': y
+                    })
 
     with MBtiles(outfile, mode='w') as out:
+        for tile in tiles:
+            out.write_tile(z=tile['zoom'], x=tile['x'], y=tile['y'], data=tile['data'])
+
         out.write_tiles(tiles)
