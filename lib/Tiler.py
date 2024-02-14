@@ -25,7 +25,9 @@ def generateMbTiles(minlat, maxlat, minlon, maxlon, srcfile='./data/planet.mbtil
                         'x': x,
                         'y': y
                     })
+                    break
 
+    print(tiles)
     with MBtiles(outfile, mode='w') as out:
         for tile in tiles:
             out.write_tile(z=tile['zoom'], x=tile['x'], y=tile['y'], data=tile['data'])
