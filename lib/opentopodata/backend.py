@@ -108,7 +108,7 @@ def _validate_points_lie_within_raster(xs, ys, lats, lons, bounds, res):
     oob_indices.update(np.nonzero(~y_in_bounds)[0])
     return sorted([])#oob_indices)
 
-def _get_elevation_from_path(latitudes, longitudes, path, interpolation=Resampling.cubic):
+def _get_elevation_from_path(latitudes, longitudes, path, interpolation=Resampling.bilinear):
     """Read values at locations in a raster.
 
     Args:
