@@ -12,7 +12,7 @@ def getElevation(line):
     for point in arr:
         if len(lats) > 0:
             d = h3.point_dist((lats[-1],lons[-1]), (point[0], point[1]))
-            if d < 0.01:
+            if d < 0.03:
                 continue
 
         lats.append(point[0])
