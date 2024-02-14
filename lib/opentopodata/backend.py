@@ -128,6 +128,9 @@ def _get_elevation_from_path(latitudes, longitudes, path, interpolation=Resampli
 
         dist = 0
 
+        prevlat = None
+        prevlon = None
+
         for i in range(len(latitudes)):
             #for i, (lon, lat) in enumerate(zip(longitudes, latitudes)):
             lon = longitudes[i]
@@ -135,31 +138,35 @@ def _get_elevation_from_path(latitudes, longitudes, path, interpolation=Resampli
 
             if i > 0:
                 dist += h3.point_dist((latitudes[i-1],longitudes[i-1]), (lat, lon))
+                d = h3.point_dist((prevlat, prevlon), (lat, lon))
+            else:
+                d = None
 
-            areaFound = False
+            if d is not None and d > 0.06:
+                areaFound = False
 
-            for area in areas:
-                if lon > area['minlon'] and lon < area['maxlon'] and lat > area['minlat'] and lat < area['maxlat']:
-                    area['lons'].append(lon)
-                    area['lats'].append(lat)
-                    area['dist'].append(dist)
+                for area in areas:
+                    if lon > area['minlon'] and lon < area['maxlon'] and lat > area['minlat'] and lat < area['maxlat']:
+                        area['lons'].append(lon)
+                        area['lats'].append(lat)
+                        area['dist'].append(dist)
 
-                    areaFound = True
-                    break
+                        areaFound = True
+                        break
 
-            if areaFound:
-                continue
+                if areaFound:
+                    continue
 
-            areas.append({
-                'maxlon': math.trunc(lon)+1 if lon > 0 else math.trunc(lon) ,
-                'minlon': math.trunc(lon) if lon > 0 else math.trunc(lon)-1,
-                'maxlat': math.trunc(lat)+1 if lat > 0 else math.trunc(lat),
-                'minlat': math.trunc(lat) if lat > 0 else math.trunc(lat)-1,
-                'lats': [lat],
-                'lons': [lon],
-                'dist': [dist],
-                'elevation': []
-            })
+                areas.append({
+                    'maxlon': math.trunc(lon)+1 if lon > 0 else math.trunc(lon) ,
+                    'minlon': math.trunc(lon) if lon > 0 else math.trunc(lon)-1,
+                    'maxlat': math.trunc(lat)+1 if lat > 0 else math.trunc(lat),
+                    'minlat': math.trunc(lat) if lat > 0 else math.trunc(lat)-1,
+                    'lats': [lat],
+                    'lons': [lon],
+                    'dist': [dist],
+                    'elevation': []
+                })
     
         for area in areas:
             lons = area['lons']
