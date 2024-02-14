@@ -130,7 +130,8 @@ def _get_elevation_from_path(latitudes, longitudes, path, interpolation=Resampli
 
         prevlat = None
         prevlon = None
-
+        print(latitudes)
+        
         for i in range(len(latitudes)):
             #for i, (lon, lat) in enumerate(zip(longitudes, latitudes)):
             lon = longitudes[i]
