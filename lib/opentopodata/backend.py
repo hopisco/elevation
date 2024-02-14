@@ -126,9 +126,6 @@ def _get_elevation_from_path(latitudes, longitudes, path, interpolation=Resampli
     if SELECT_METHOD == 'NEW':
         areas = []
 
-        print(longitudes)
-        print(latitudes)
-
         dist = 0
 
         for i in range(len(latitudes)):
@@ -164,10 +161,7 @@ def _get_elevation_from_path(latitudes, longitudes, path, interpolation=Resampli
                 'elevation': []
             })
     
-        print(areas)
-
         for area in areas:
-            print("SELECT AREA")
             lons = area['lons']
             lats = area['lats']
 
@@ -175,15 +169,12 @@ def _get_elevation_from_path(latitudes, longitudes, path, interpolation=Resampli
             lonFilename = 'E{:02}'.format(area['minlon']) if lons[0] > 0 else 'W{:02}'.format(abs(area['minlon']))
             filename = "ASTGTMV003_{}{}_dem.tif".format(latFilename, lonFilename)
 
-            print(filename)
-
             try:
                 with rasterio.open('{}{}'.format(path, filename)) as f:
                     if f.crs is None:
                         msg = "Dataset has no coordinate reference system."
                         msg += f" Check the file '{path}' is a geo raster."
                         msg += " Otherwise you'll have to add the crs manually with a tool like gdaltranslate."
-                        print(msg)
                         raise ValueError(msg)
 
                     try:
@@ -224,7 +215,6 @@ def _get_elevation_from_path(latitudes, longitudes, path, interpolation=Resampli
                     # values are NODATA.
                     for i, (row, col) in enumerate(zip(rows, cols)):
                         if i in oob_indices:
-                            print("Out Of bounds")
                             area['elevation'].append(0.0)
                             continue
 
