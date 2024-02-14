@@ -166,6 +166,7 @@ def _get_elevation_from_path(latitudes, longitudes, path, interpolation=Resampli
             lons = area.lons
             lats = area.lats
 
+            print("OK here")
             latFilename = 'N{:02}'.format(area['minlat']) if lats[0] > 0 else 'S{:02}'.format(abs(area['minlat']))
             lonFilename = 'E{:02}'.format(area['minlon']) if lons[0] > 0 else 'W{:02}'.format(abs(area['minlon']))
             filename = "ASTGTMV003_{}{}_dem.tif".format(latFilename, lonFilename)
@@ -250,6 +251,9 @@ def _get_elevation_from_path(latitudes, longitudes, path, interpolation=Resampli
 
                 area['elevation'].append(0.0)
 
+            except Exception as e:
+                print(e)
+                
         print(areas)
 
         return []
