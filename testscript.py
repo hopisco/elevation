@@ -33,7 +33,7 @@ def downloadTiles(minlat, maxlat, minlon, maxlon):
                 count += 1
 
     curr = 0
-    
+
     for zoom in range(12,19):
         n = math.pow(2.0, zoom)
         minY = int((1.0 - math.asinh(math.tan(maxlatRad))/math.pi) / 2.0 * n)
@@ -46,6 +46,8 @@ def downloadTiles(minlat, maxlat, minlon, maxlon):
                 getTile(z=zoom, x=x, y=y)
                 curr += 1
                 print("Got tile {}/{}".format(curr, count))
+
+downloadTiles(37, 38, -122, -121)
 
 '''
 import lib.opentopodata  as opentopodata
