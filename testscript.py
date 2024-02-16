@@ -3,6 +3,7 @@ import os
 import math
 import time
 import urllib3
+import multiprocessing
 
 urllib3.disable_warnings()
 
@@ -36,6 +37,7 @@ def downloadTiles(minlat, maxlat, minlon, maxlon):
                 count += 1
 
     curr = 0
+    process_list = []
 
     for zoom in range(14,16):
         n = math.pow(2.0, zoom)
@@ -46,11 +48,29 @@ def downloadTiles(minlat, maxlat, minlon, maxlon):
 
         for x in range(minX-1, maxX+1):
             for y in range(minY-1, maxY+1):
-                getTile(z=zoom, x=x, y=y)
+                while len(process_list) > 20:
+                    # Did a process finish ?       
+                    tmp = []
+
+                    for process in process_list:
+                        process.join(timeout=0)
+                        if process.is_alive():
+                            tmp.append(process)
+
+                    process_list = tmp.copy()
+
+                #print("[Info] {} process are running".format(len(process_list)))
+
+                proc = multiprocessing.Process(target=getTile, args=(zoom, x, y))
+                process_list.append(proc)
+                proc.start()
+
+                #getTile(z=zoom, x=x, y=y)
                 curr += 1
                 print("Got tile {}/{}".format(curr, count))
 
-downloadTiles(37, 38, -122, -121)
+if __name__ == "__main__":
+    downloadTiles(37, 38, -122, -121)
 
 '''
 import lib.opentopodata  as opentopodata
