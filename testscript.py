@@ -1,5 +1,7 @@
 import requests
 import os
+import math
+import time
 
 def getTile(z,x,y):
     url = "https://tiles.mooviz.app/styles/basic-preview/{z}/{x}/{y}.png".format(z=z, x=x, y=y)
@@ -9,10 +11,41 @@ def getTile(z,x,y):
 
     with open('/home/ubuntu/tmp/{z}/{x}/{y}.png'.format(z=z, x=x, y=y), 'wb') as f:
         f.write(response.content)
-        
-    print("Got tile")
 
-getTile(z=0, x=0, y=0)
+def downloadTiles(minlat, maxlat, minlon, maxlon):
+
+    tiles = []
+
+    #Compute region for each zoom
+    minlatRad = minlat * math.pi/180.0
+    maxlatRad = maxlat * math.pi/180.0
+
+    count = 0
+    for zoom in range(12,19):
+        n = math.pow(2.0, zoom)
+        minY = int((1.0 - math.asinh(math.tan(maxlatRad))/math.pi) / 2.0 * n)
+        maxY = int((1.0 - math.asinh(math.tan(minlatRad))/math.pi) / 2.0 * n)
+        minX = int(n * ((minlon+180)/360))
+        maxX = int(n * ((maxlon+180)/360))
+
+        for x in range(minX-1, maxX+1):
+            for y in range(minY-1, maxY+1):
+                count += 1
+
+    curr = 0
+    
+    for zoom in range(12,19):
+        n = math.pow(2.0, zoom)
+        minY = int((1.0 - math.asinh(math.tan(maxlatRad))/math.pi) / 2.0 * n)
+        maxY = int((1.0 - math.asinh(math.tan(minlatRad))/math.pi) / 2.0 * n)
+        minX = int(n * ((minlon+180)/360))
+        maxX = int(n * ((maxlon+180)/360))
+
+        for x in range(minX-1, maxX+1):
+            for y in range(minY-1, maxY+1):
+                getTile(z=zoom, x=x, y=y)
+                curr += 1
+                print("Got tile {}/{}".format(curr, count))
 
 '''
 import lib.opentopodata  as opentopodata
