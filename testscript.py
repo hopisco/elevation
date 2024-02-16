@@ -21,7 +21,7 @@ def downloadTiles(minlat, maxlat, minlon, maxlon):
     maxlatRad = maxlat * math.pi/180.0
 
     count = 0
-    for zoom in range(12,19):
+    for zoom in range(14,16):
         n = math.pow(2.0, zoom)
         minY = int((1.0 - math.asinh(math.tan(maxlatRad))/math.pi) / 2.0 * n)
         maxY = int((1.0 - math.asinh(math.tan(minlatRad))/math.pi) / 2.0 * n)
@@ -34,7 +34,7 @@ def downloadTiles(minlat, maxlat, minlon, maxlon):
 
     curr = 0
 
-    for zoom in range(12,19):
+    for zoom in range(14,16):
         n = math.pow(2.0, zoom)
         minY = int((1.0 - math.asinh(math.tan(maxlatRad))/math.pi) / 2.0 * n)
         maxY = int((1.0 - math.asinh(math.tan(minlatRad))/math.pi) / 2.0 * n)
