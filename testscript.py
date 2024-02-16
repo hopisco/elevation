@@ -7,15 +7,14 @@ import multiprocessing
 
 urllib3.disable_warnings()
 
-def getTile(z,x,minY, maxY):
-    for y in range(minY-1, maxY+1):
-        url = "https://tiles.mooviz.app/styles/basic-preview/{z}/{x}/{y}.png".format(z=z, x=x, y=y)
+def getTile(z,x,y):
+    url = "https://tiles.mooviz.app/styles/basic-preview/{z}/{x}/{y}.png".format(z=z, x=x, y=y)
 
-        response = requests.get(url, verify=False)
-        os.makedirs('/home/ubuntu/tmp/{z}/{x}'.format(z=z, x=x), exist_ok=True)
+    response = requests.get(url, verify=False)
+    os.makedirs('/home/ubuntu/tmp/{z}/{x}'.format(z=z, x=x), exist_ok=True)
 
-        with open('/home/ubuntu/tmp/{z}/{x}/{y}.png'.format(z=z, x=x, y=y), 'wb') as f:
-            f.write(response.content)
+    with open('/home/ubuntu/tmp/{z}/{x}/{y}.png'.format(z=z, x=x, y=y), 'wb') as f:
+        f.write(response.content)
 
 def downloadTiles(minlat, maxlat, minlon, maxlon):
 
@@ -48,28 +47,9 @@ def downloadTiles(minlat, maxlat, minlon, maxlon):
         maxX = int(n * ((maxlon+180)/360))
 
         for x in range(minX-1, maxX+1):
-            
-            while len(process_list) > 20:
-                # Did a process finish ?       
-                tmp = []
-
-                for process in process_list:
-                    process.join(timeout=0)
-                    if process.is_alive():
-                        tmp.append(process)
-
-                process_list = tmp.copy()
-
-            #print("[Info] {} process are running".format(len(process_list)))
-
-            proc = multiprocessing.Process(target=getTile, args=(zoom, x, minY-1, maxY+1))
-            process_list.append(proc)
-            proc.start()
-            
-            #getTile(z=zoom, x=x, y=y)
-            '''
             for y in range(minY-1, maxY+1):
-                while len(process_list) > 20:
+                
+                while len(process_list) > 100:
                     # Did a process finish ?       
                     tmp = []
 
@@ -85,10 +65,10 @@ def downloadTiles(minlat, maxlat, minlon, maxlon):
                 proc = multiprocessing.Process(target=getTile, args=(zoom, x, y))
                 process_list.append(proc)
                 proc.start()
-                getTile(z=zoom, x=x, y=y)
+
+                #getTile(z=zoom, x=x, y=y)
                 curr += 1
                 print("Got tile {}/{}".format(curr, count))
-            '''
 
 if __name__ == "__main__":
     downloadTiles(37, 38, -122, -121)
