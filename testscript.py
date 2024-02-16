@@ -2,6 +2,9 @@ import requests
 import os
 import math
 import time
+import urllib3
+
+urllib3.disable_warnings()
 
 def getTile(z,x,y):
     url = "https://tiles.mooviz.app/styles/basic-preview/{z}/{x}/{y}.png".format(z=z, x=x, y=y)
