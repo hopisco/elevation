@@ -48,6 +48,7 @@ def downloadTiles(minlat, maxlat, minlon, maxlon):
 
         for x in range(minX-1, maxX+1):
             for y in range(minY-1, maxY+1):
+                '''
                 while len(process_list) > 20:
                     # Did a process finish ?       
                     tmp = []
@@ -64,8 +65,8 @@ def downloadTiles(minlat, maxlat, minlon, maxlon):
                 proc = multiprocessing.Process(target=getTile, args=(zoom, x, y))
                 process_list.append(proc)
                 proc.start()
-
-                #getTile(z=zoom, x=x, y=y)
+                '''
+                getTile(z=zoom, x=x, y=y)
                 curr += 1
                 print("Got tile {}/{}".format(curr, count))
 
