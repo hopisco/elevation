@@ -52,6 +52,11 @@ def getElevation(line):
                     downhill += elevations[i]['elevation'] - elevations[i-1]['elevation']
 
             points.append((elevations[i]['dist'], elevations[i]['elevation']))
+            details.append({
+                'lon': lons[i],
+                'lat': lats[i],
+                'ele': elevations[i]
+            })
 
     else:
         for i in range(len(elevations)):
@@ -67,16 +72,6 @@ def getElevation(line):
                     downhill += elevations[i] - elevations[i-1]
 
             points.append((distance, elevations[i]))
-            details.append({
-                'lon': lons[i],
-                'lat': lats[i],
-                'ele': elevations[i]
-            })
-            print({
-                'lon': lons[i],
-                'lat': lats[i],
-                'ele': elevations[i]
-            })
 
             #points.append({
             #    'lat': arr[i][0],
