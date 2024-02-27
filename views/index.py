@@ -13,7 +13,7 @@ class indexView():
     def __init__(self, app):
         self.application = app
         app.add_url_rule('/', 'getelevation', self.getelevation, methods=['POST'])
-        app.add_url_rule('/', 'getelevation/details', self.getelevationdetails, methods=['POST'])
+        app.add_url_rule('/detailled', 'geteledetails', self.getelevationdetails, methods=['POST'])
 
     def getelevation(self):
         try:
