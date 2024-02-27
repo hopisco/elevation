@@ -121,6 +121,8 @@ def _get_elevation_from_path(latitudes, longitudes, path, interpolation=Resampli
     """
     z_all = []
 
+    print(len(latitudes))
+
     #print(interpolation)
     #print('{} / {}'.format(latitudes, longitudes))
     if SELECT_METHOD == 'NEW':
@@ -169,7 +171,14 @@ def _get_elevation_from_path(latitudes, longitudes, path, interpolation=Resampli
                     'dist': [dist],
                     'elevation': []
                 })
-                    
+
+        print("FROM AREADS")
+        sum = 0
+
+        for area in areas:
+            sum += len(area['lats'])
+
+        print(sum)
         for area in areas:
             lons = area['lons']
             lats = area['lats']
