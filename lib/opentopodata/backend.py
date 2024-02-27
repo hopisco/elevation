@@ -267,11 +267,13 @@ def _get_elevation_from_path(latitudes, longitudes, path, interpolation=Resampli
                 print(e)
 
         points = []
+
         for area in areas:
             for i in range(len(area['dist'])):
                 points.append({
                     'dist': area['dist'][i], 
-                    'elevation': area['elevation'][i]
+                    'elevation': area['elevation'][i],
+                    'point': {'lon': area['lons'][i], 'lat': area['lats'][i]}
                 })
 
         return sorted(points, key=lambda d: d['dist']) 

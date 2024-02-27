@@ -53,8 +53,8 @@ def getElevation(line):
 
             points.append((elevations[i]['dist'], elevations[i]['elevation']))
             details.append({
-                'lon': lons[i],
-                'lat': lats[i],
+                'lon': elevations[i]['point']['lon'],
+                'lat': elevations[i]['point']['lat'],
                 'ele': elevations[i]['elevation']
             })
 
