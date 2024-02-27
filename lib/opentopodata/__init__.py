@@ -41,6 +41,7 @@ def getElevation(line):
     distance = 0
     uphill = 0
     downhill = 0
+    details = []
 
     if backend.SELECT_METHOD == 'NEW':
         for i in range(len(elevations)):
@@ -66,6 +67,11 @@ def getElevation(line):
                     downhill += elevations[i] - elevations[i-1]
 
             points.append((distance, elevations[i]))
+            details.append({
+                'lon': lons[i],
+                'lat': lats[i],
+                'ele': elevations[i]
+            })
 
             #points.append({
             #    'lat': arr[i][0],
@@ -77,5 +83,6 @@ def getElevation(line):
     return {
         'uphill': uphill,
         'downhill': downhill,
-        'points': polyline.encode(points)
+        'points': polyline.encode(points),
+        'details': details
     }
