@@ -285,13 +285,17 @@ def _get_elevation_from_path(latitudes, longitudes, path, interpolation=Resampli
             lons = [lon]
             lats = [lat]
 
-            #print('{} / {}'.format(lats, lons))
+            print('{} / {}'.format(lats, lons))
             
             latFilename = 'N{a:02}'.format(int(round(lats[0], 0))) if lats[0] > 0 else 'N{a:02}'.format(abs(int(round(lats[0], 0))))
             lonFilename = 'E{a:03}'.format(int(round(lons[0]-1, 0))) if lons[0] > 0 else 'W{a:03}'.format(abs(int(round(lons[0]-1, 0))))
             filename = "ASTGTMV003_{}{}_dem.tif".format(latFilename, lonFilename)
 
-            #print("Open file ASTGTMV003_{}{}_dem.tif".format(latFilename, lonFilename))
+            print(latFilename)
+            print(lonFilename)
+            print(filename)
+
+            print("Open file ASTGTMV003_{}{}_dem.tif".format(latFilename, lonFilename))
 
             #interpolation = INTERPOLATION_METHODS.get(interpolation)
             #print("INTERPOLATION")
